@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#292929">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Bancolombia Notif">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Bancolombia Notif</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #1a1a1a;
+      --yellow: #ffd100;
+      --green: #00ba85;
+      --white: #ffffff;
+      --gray-light: #f4f4f2;
+      --gray-mid: #e0e0e0;
+      --gray-text: #666;
+      --radius: 14px;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--black);
+      color: var(--white);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--black);
+      border-bottom: 3px solid var(--yellow);
+      padding: 18px 20px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-logo {
+      font-family: var(--font-head);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .header-logo span { color: var(--yellow); }
+    .header-badge {
+      font-size: 11px;
+      font-family: var(--font-body);
+      background: var(--yellow);
+      color: var(--black);
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      padding: 24px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section-label {
+      font-family: var(--font-head);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--yellow);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* CARD */
+    .card {
+      background: #242424;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid #333;
+    }
+
+    /* FIELDS */
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #999;
+      margin-bottom: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #3a3a3a;
+      border-radius: 10px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 13px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--yellow);
+    }
+    input::placeholder, textarea::placeholder {
+      color: #555;
+    }
+    textarea { resize: none; height: 80px; }
+
+    /* AMOUNT FIELD */
+    .amount-wrap {
+      position: relative;
+    }
+    .amount-wrap input {
+      padding-left: 40px;
+      font-size: 20px;
+      font-family: var(--font-head);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .amount-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #666;
+      font-family: var(--font-body);
+      pointer-events: none;
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: #333;
+      margin: 4px 0 16px;
+    }
+
+    /* CONFIG SECTION */
+    .config-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+    .config-toggle-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #aaa;
+    }
+    .chevron {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s;
+      color: #555;
+    }
+    .chevron.open { transform: rotate(180deg); }
+    .config-body {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s ease;
+    }
+    .config-body.open { max-height: 400px; }
+    .config-inner { padding-top: 16px; }
+
+    /* PREVIEW STRIP */
+    .preview-strip {
+      background: var(--green);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .preview-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .preview-icon svg { width: 20px; height: 20px; }
+    .preview-text { flex: 1; min-width: 0; }
+    .preview-text p {
+      font-size: 12px;
+      color: rgba(0,0,0,0.65);
+      margin-bottom: 2px;
+    }
+    .preview-text strong {
+      font-size: 15px;
+      font-family: var(--font-head);
+      font-weight: 700;
+      color: #000;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* SEND BUTTON */
+    .btn-send {
+      width: 100%;
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      border-radius: var(--radius);
+      padding: 17px;
+      font-family: var(--font-head);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-send:active { transform: scale(0.98); opacity: 0.9; }
+    .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-send .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-send.loading .spinner { display: block; }
+    .btn-send.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #fff;
+      color: #111;
+      padding: 13px 22px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font-body);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.success { background: var(--green); color: #000; }
+    .toast.error { background: #ff4444; color: #fff; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* AMOUNT FORMAT */
+    .formatted-amount {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      font-family: var(--font-body);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-logo">Banco<span>colombia</span></div>
+    <div class="header-badge">Notificaciones</div>
+  </header>
+
+  <main>
+
+    <!-- PAGO -->
+    <div>
+      <p class="section-label">Nuevo pago</p>
+      <div class="card">
+        <div class="field">
+          <label>Nombre del pagador</label>
+          <input type="text" id="payer_name" placeholder="ANDRES GOMEZ GUTIERREZ" autocomplete="off" style="text-transform:uppercase">
+        </div>
+        <div class="divider"></div>
+        <div class="field">
+          <label>Valor recibido</label>
+          <div class="amount-wrap">
+            <span class="amount-prefix">$</span>
+            <input type="number" id="amount" placeholder="73500" inputmode="decimal">
+          </div>
+          <div class="formatted-amount" id="amount_formatted"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div id="preview_strip" class="preview-strip" style="display:none">
+      <div class="preview-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <div class="preview-text">
+        <p>Vista previa del mensaje</p>
+        <strong id="preview_text_content">—</strong>
+      </div>
+    </div>
+
+    <!-- BOTÓN ENVIAR -->
+    <button class="btn-send" id="btn_send" onclick="sendEmail()">
+      <div class="spinner"></div>
+      <span class="btn-text">Enviar notificación</span>
+    </button>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    const FIXED_EMAIL    = 'camhernandezri@gmail.com';
+    const FIXED_ACCOUNT  = '2454';
+    const FIXED_LLAVE    = '0091417598';
+    const FIXED_BIZ      = 'LA RANA PUB';
+    const FIXED_PK       = 'JDTCRIEH_tD4-d21o';
+    const FIXED_SVC_ID   = 'service_e0wn0ys';
+    const FIXED_TPL_ID   = 'template_4v8io7p';
+
+    // ── PERSISTENCIA DE CONFIG ──
+    const FIELDS_CONFIG = [];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      FIELDS_CONFIG.forEach(id => {
+        const saved = localStorage.getItem('bnc_' + id);
+        if (saved) document.getElementById(id).value = saved;
+      });
+      FIELDS_CONFIG.forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+          localStorage.setItem('bnc_' + id, document.getElementById(id).value);
+        });
+      });
+
+      // Limpiar service worker viejo
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          regs.forEach(reg => reg.unregister());
+        });
+      }
+
+      // Live preview
+      ['payer_name','amount'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePreview);
+      });
+
+      // Format amount
+      document.getElementById('amount').addEventListener('input', formatAmount);
+    });
+
+    function formatAmount() {
+      const val = parseFloat(document.getElementById('amount').value);
+      const el = document.getElementById('amount_formatted');
+      if (!isNaN(val) && val > 0) {
+        el.textContent = '→ ' + val.toLocaleString('es-CO', {style:'currency', currency:'COP', minimumFractionDigits:2});
+      } else {
+        el.textContent = '';
+      }
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const payer = document.getElementById('payer_name').value.trim().toUpperCase();
+      const amount = document.getElementById('amount').value;
+      const strip = document.getElementById('preview_strip');
+      const content = document.getElementById('preview_text_content');
+
+      if (payer && amount) {
+        const fmt = parseFloat(amount).toLocaleString('es-CO', {style:'currency', currency:'COP', minimumFractionDigits:2});
+        content.textContent = `${payer} → ${fmt}`;
+        strip.style.display = 'flex';
+      } else {
+        strip.style.display = 'none';
+      }
+    }
+
+    function toggleConfig() {
+      const body = document.getElementById('config_body');
+      const chevron = document.getElementById('chevron_icon');
+      body.classList.toggle('open');
+      chevron.classList.toggle('open');
+    }
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    function getNow() {
+      const now = new Date();
+      const date = now.toLocaleDateString('es-CO', {day:'2-digit', month:'2-digit', year:'numeric'});
+      const time = now.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit', hour12:false});
+      return { date, time };
+    }
+
+    async function sendEmail() {
+      const payer  = document.getElementById('payer_name').value.trim().toUpperCase();
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (!payer || !amount) {
+        showToast('Completa todos los campos', 'error');
+        return;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        showToast('Ingresa un valor válido', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn_send');
+      btn.disabled = true;
+      btn.classList.add('loading');
+
+      emailjs.init({publicKey: FIXED_PK});
+      const { date, time } = getNow();
+      const amountFmt = amount.toLocaleString('es-CO', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+      const templateParams = {
+        to_email:   FIXED_EMAIL,
+        business:   FIXED_BIZ,
+        payer_name: payer,
+        amount:     amountFmt,
+        account:    FIXED_ACCOUNT,
+        llave:      FIXED_LLAVE,
+        date:       date,
+        time:       time,
+      };
+
+      try {
+        await emailjs.send(FIXED_SVC_ID, FIXED_TPL_ID, templateParams);
+        showToast('✓ Notificación enviada', 'success');
+        document.getElementById('payer_name').value = '';
+        document.getElementById('amount').value = '';
+        document.getElementById('amount_formatted').textContent = '';
+        document.getElementById('preview_strip').style.display = 'none';
+      } catch (err) {
+        console.error(err);
+        showToast('Error al enviar. Verifica la config', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+      }
+    }
+
+
+  </script>
+</body>
+</html>
